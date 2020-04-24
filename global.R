@@ -1,18 +1,8 @@
-library(shiny)
-library("red")
-library("RJSONIO")
-library("ritis")
-library("plotly")
-library("lubridate")
-library("reshape")
-library("dplyr")
-library("plotly")
-library("tidyverse")
-library("tidyr")
-
 ##################################
 ######Traitement des données######
 ##################################
+
+######Initialisation######
 
 setwd("C:/Users/Utilisateur/Desktop/Stage/DonneesTravaillees")
 data<- read.csv2("data_nettoye.csv", header = TRUE, encoding = "UTF-8")
@@ -22,9 +12,9 @@ annee<-substring(data[,"DATE"],7,10)
 mois<-substring(data[,"DATE"],4,5)
 jour<-substring(data[,"DATE"],1,2)
 
-################################################
+##################################
+
 ######Fréquence de chaque espèce par année######
-################################################
 
 #Crée un dataframe espece observee par année
 b_an <- table(data$ESPECE.OBSERVEE,annee)
@@ -46,6 +36,14 @@ b_anl <- b_an
 # x = chaque espece (unique), y = fréquence en fonction de l'année
 #add_trace rajoute les annéeq 1 par 1
 
+names(b_an_brute) <- c("especes","annee","Freq")
+b_anl_brute <- b_an_brute
+b_an_brute <-cast(b_an_brute,formula = especes~annee,value.var = "Freq")
+p_brute <-DT::datatable(b_an_brute)
+
+################################################
+
+######Création de l'axe x marge des graphiques######
 m <- list(
   l = 50,
   r = 50,
@@ -60,14 +58,10 @@ xaxis <- list(
   cex.lab = 0.5
 )
 
-names(b_an_brute) <- c("especes","annee","Freq")
-b_anl_brute <- b_an_brute
-b_an_brute <-cast(b_an_brute,formula = especes~annee,value.var = "Freq")
-p_brute <-DT::datatable(b_an_brute)
+########################################################
 
-########################################################
+
 ######Nombre de chaque espèce par année par marché######
-########################################################
 
 nb_esp_annee_lieu <- data.frame(table(data$ESPECE.OBSERVEE,annee,data$LIEU))
 nb_esp_annee_lieu_brute <- nb_esp_annee_lieu
@@ -80,5 +74,4 @@ for (i in names(jours_visite_annee))
 names(nb_esp_annee_lieu) <- c('especes','annee','marche','Freq')
 names(nb_esp_annee_lieu_brute) <- c('especes','annee','marche','Freq')
 
-
-shinyApp(ui = ui, server = server)
+########################################################

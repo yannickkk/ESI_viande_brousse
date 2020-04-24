@@ -1,32 +1,14 @@
-#
-# This is the user-interface definition of a Shiny web application. You can
-# run the application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-# 
-#    http://shiny.rstudio.com/
-#
 
-library(shiny)
-library("red")
-library("RJSONIO")
-library("ritis")
-library("plotly")
-library("lubridate")
-library("reshape")
-library("dplyr")
-library("plotly")
-library("tidyverse")
-library("tidyr")
 
-# Define UI for application that draws a histogram
+# Define UI for application 
 ui <- navbarPage("ESI-Congo",
                  tabPanel("Dataviewer"),
                  tabPanel("Spatial viewer"),
                  tabPanel("Protocole"),
                  tabPanel("Import dataset"),
                  
-                 # Sidebar with a slider input for number of bins 
+                 ######Sidebar Layout######
+        
                  sidebarLayout(
                    sidebarPanel(
                      selectInput("var1",label = "Taxonomic rank",choices = list("choice 1" = 1, "choice 2" = 2), selected = 1),
@@ -35,11 +17,16 @@ ui <- navbarPage("ESI-Congo",
                      checkboxInput("checkbox", label = "Display weighted data : Number of bush meat occurences divided by number of visits", value = FALSE),
                      dateRangeInput("dates", label = "Date range",start = "2008-01-01", end = "2018-12-31", min = "2008-01-01",max = "2018-12-31", format = 'yyyy', startview = "decade"),
                    ),
+                   ##########################
                    
-                   # Show a plot of the generated distribution
+                   ######Main Panel######
                    mainPanel( 
                      plotlyOutput("plotly"),
                    )
+                   ######################
                  ),
+                 ####Bas de page####
                  DT::dataTableOutput("DT")
+                 ###################
 )
+
