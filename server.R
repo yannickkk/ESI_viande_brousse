@@ -1,17 +1,3 @@
-#####Useful library#####
-
-#library("red")
-#library("RJSONIO")
-#library("ritis")
-#library("lubridate")
-library("plotly")
-library("reshape")
-library("dplyr")
-library("tidyverse")
-library("tidyr")
-library(shiny)
-
-######################
 
 # Define server logic 
 server <- function(input, output) {
@@ -37,7 +23,7 @@ server <- function(input, output) {
     #####Checking checkbox#####
     if (input$checkbox) {
       yaxis <- list(
-        title = 'Fréquences cumulées',
+        title = 'Fréquences (occurances/nbre visites) cumulées',
         cex.axis =0.5,
         cex.lab = 0.5
       )
@@ -67,7 +53,7 @@ server <- function(input, output) {
     }
     else{
       yaxis <- list(
-        title = 'Fréquences (occurances/nbre visites) cumulées',
+        title = 'Fréquences cumulées',
         cex.axis =0.5,
         cex.lab = 0.5
       )
@@ -105,7 +91,7 @@ server <- function(input, output) {
       #####Récupération fréquence/visites######
       annee_p<-substring(data_p[,"DATE"],7,10) 
       jours_visite_annee_p<-table(substring(unique(data_p[,"DATE"]),7,10))
-      b_an_p <- data.frame(table(data_p$ESPECE.OBSERVEE,annee_p))
+      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$NOM.LATIN,sep=', '),annee_p))
       for (i in names(jours_visite_annee_p)){
         b_an_p[which(as.character(b_an_p[,"annee_p"]) == i), "Freq"] <- round(b_an_p[which(as.character(b_an_p[,"annee_p"]) == i), "Freq"]/jours_visite_annee_p[i],2)
       }
@@ -124,7 +110,7 @@ server <- function(input, output) {
       #######################
       ######Création table######
       annee_p<-substring(data_p[,"DATE"],7,10)
-      b_an_p <- data.frame(table(data_p$ESPECE.OBSERVEE,annee_p))
+      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$NOM.LATIN,sep=', '),annee_p))
       names(b_an_p)<-c("especes","annee","Freq")
       b_an_p<-cast(b_an_p,formula = especes~annee,value.var = "Freq")
       DT::datatable(b_an_p)
