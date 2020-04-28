@@ -1,11 +1,25 @@
 ##################################
 ######Traitement des données######
 ##################################
+#####Useful library#####
+
+#library("red")
+#library("RJSONIO")
+#library("ritis")
+#library("lubridate")
+library("plotly")
+library("reshape")
+library("dplyr")
+library("tidyverse")
+library("tidyr")
+library(shiny)
+
+######################
 
 ######Initialisation######
 
 setwd("C:/Users/Utilisateur/Desktop/Stage/DonneesTravaillees")
-data<- read.csv2("data_nettoye.csv", header = TRUE, encoding = "UTF-8")
+data<- read.csv2("data_nettoye.csv", header = TRUE, encoding = "ANVI")
 data_p <- data
 #Récupère annee, mois et jour séparés
 annee<-substring(data[,"DATE"],7,10) 
@@ -27,6 +41,7 @@ jours_visite_annee<-table(substring(unique(data[,"DATE"]),7,10))
 for (i in names(jours_visite_annee))
 {
   b_an[which(as.character(b_an[,"annee"]) == i), "Freq"] <- round(b_an[which(as.character(b_an[,"annee"]) == i), "Freq"]/jours_visite_annee[i],2)
+  b_an[which(as.character(b_an[,"annee"]) == i), "Freq"] <- log(1+b_an[which(as.character(b_an[,"annee"]) == i), "Freq"])
 }
 
 names(b_an)<-c("especes","annee","Freq")
@@ -35,8 +50,11 @@ b_anl <- b_an
 #Permet de visualiser sous forme de graphique b_an
 # x = chaque espece (unique), y = fréquence en fonction de l'année
 #add_trace rajoute les annéeq 1 par 1
-
 names(b_an_brute) <- c("especes","annee","Freq")
+for (i in 1:nrow(b_an_brute))
+{
+  b_an_brute[i,3] <- log(1+b_an_brute[i,3])
+}
 b_anl_brute <- b_an_brute
 b_an_brute <-cast(b_an_brute,formula = especes~annee,value.var = "Freq")
 p_brute <-DT::datatable(b_an_brute)
@@ -69,9 +87,17 @@ nb_esp_annee_lieu_brute <- nb_esp_annee_lieu
 for (i in names(jours_visite_annee))
 {
   nb_esp_annee_lieu[which(as.character(nb_esp_annee_lieu[,"annee"]) == i), "Freq"] <- round(nb_esp_annee_lieu[which(as.character(nb_esp_annee_lieu[,"annee"]) == i), "Freq"]/jours_visite_annee[i],2)
+  b_an[which(as.character(b_an[,"annee"]) == i), "Freq"] <- log(1+b_an[which(as.character(b_an[,"annee"]) == i), "Freq"])
 }
 
 names(nb_esp_annee_lieu) <- c('especes','annee','marche','Freq')
 names(nb_esp_annee_lieu_brute) <- c('especes','annee','marche','Freq')
 
+for (i in 1:nrow(nb_esp_annee_lieu_brute))
+{
+  nb_esp_annee_lieu_brute[i,4] <- log(nb_esp_annee_lieu_brute[i,4])
+}
+
 ########################################################
+
+summary(data$NOM.LATIN)
