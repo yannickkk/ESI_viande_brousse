@@ -19,8 +19,8 @@ library(markdown)
 
 ######Initialisation######
 
-setwd("C:/Users/Utilisateur/Desktop/Stage/DonneesTravaillees")
-data<- read.csv2("data_nettoye.csv", header = TRUE, encoding = "ANVI")
+setwd("C:/Users/Utilisateur/Desktop/Stage/Outputs")
+data<- read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
 data_p <- data
 
 ################################################
