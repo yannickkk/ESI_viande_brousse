@@ -6,18 +6,18 @@ ui <- navbarPage("ESI-Congo",
                           ######Sidebar Layout######
                           sidebarLayout(
                             sidebarPanel(
-                              selectInput("rank",label = "Taxonomic rank",choices = list("Nom latin" = "NOM.LATIN", "class" = "class", "order"="order","family"="family","genus"="genus")),
-                              selectInput("taxa","Choose species",data$NOM.LATIN,multiple = TRUE),
-                              selectInput("var3",label= "Market (single or multiple)",choices = c("Tous les marchés", levels(data$LIEU)),selected = "Tous les marchés",multiple=TRUE),
+                              selectInput("rank",label = "Taxonomic rank",choices = list("Scientific_name" = "Scientific_name", "class" = "class", "order"="order","family"="family","genus"="genus")),
+                              selectInput("taxa","Choice species",paste("whole taxa",data$Scientific_name),multiple = TRUE,selected ="whole taxa"),
+                              selectInput("var3",label= "Market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = "whole markets",multiple=TRUE),
                               checkboxInput("checkbox", label = "Display weighted data : Number of bush meat occurences divided by number of visits", value = FALSE),
                               checkboxInput("checkboxlog", label = "Display logarithmic scale for y axis", value = FALSE),
-                              dateRangeInput("dates", label = "Date range",start = "2008-01-01", end = "2019-12-31", min = "2008-01-01",max = "2019-12-31", format = 'yyyy', startview = "decade")
-                              ),
+                              dateRangeInput("dates", label = "Date range",start = "2008-01-01", end = "2019-12-31", min = "2008-01-01",max = "2019-12-31", format = 'yyyy', startview = "decade"),
+                              width = 2),
                             ##########################
                             ######Main Panel######
                             mainPanel( 
-                              plotlyOutput("plotly")
-                              )
+                              plotlyOutput("plotly",height="600px"),
+                              width = 10,)
                             ###################
                             ),
                           DT::dataTableOutput("DT")

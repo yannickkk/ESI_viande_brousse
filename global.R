@@ -35,7 +35,7 @@ m <- list(
 )
 
 xaxis <- list(
-  title = 'espèces',
+  title = 'species',
   cex.axis =0.5,
   cex.lab = 0.5
 )
