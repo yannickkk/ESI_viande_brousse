@@ -3,15 +3,26 @@
 server <- function(input, output, session) {
   observe({
     rank <- input$rank
-    updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa", levels(data[,rank])), selected = "whole taxa")
+    if (rank == "species") {
+      data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
+    }
+    updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])))
   })
+  
+  
   
   ######Plotly#####
   output$plotly <- renderPlotly({
+    validate(
+      need(input$taxa != "", "Please select a taxa")
+    )
     
     #####Checking taxa####
     taxa <- input$taxa
     rank <- input$rank
+    if (rank == "species") {
+      data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
+    }
     data_cut_taxa <- data
     if ("whole taxa"%in%taxa){
       data_cut_taxa <- data
@@ -140,7 +151,7 @@ server <- function(input, output, session) {
       #####Récupération fréquence/visites######
       annee_p<-substring(data_p[,"DATE"],7,10) 
       jours_visite_annee_p<-table(substring(unique(data_p[,"DATE"]),7,10))
-      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$Scientific_name,sep=', '),annee_p))
+      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$species,sep=', '),annee_p))
       for (i in names(jours_visite_annee_p)){
         b_an_p[which(as.character(b_an_p[,"annee_p"]) == i), "Freq"] <- round(b_an_p[which(as.character(b_an_p[,"annee_p"]) == i), "Freq"]/jours_visite_annee_p[i],2)
       }
@@ -159,7 +170,7 @@ server <- function(input, output, session) {
       #######################
       ######Création table######
       annee_p<-substring(data_p[,"DATE"],7,10)
-      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$Scientific_name,sep=', '),annee_p))
+      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$species,sep=', '),annee_p))
       names(b_an_p)<-c("especes","annee","Freq")
       b_an_p<-cast(b_an_p,formula = especes~annee,value.var = "Freq")
       DT::datatable(b_an_p)
