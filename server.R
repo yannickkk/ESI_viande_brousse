@@ -178,13 +178,40 @@ server <- function(input, output, session) {
     }
     ######################
   })
-  ###################
-  observe({
+  
+  #####iframe######
+  observeEvent(input$species,{
     specie <- as.character(input$species)
-    link <<- paste0('http://apiv3.iucnredlist.org/api/v3/website/',specie)
+    link <<- paste0("https://species.wikimedia.org/wiki/",specie,"")
+    output$frame <- renderUI({
+      tags$iframe(src=link, height=1200, width=1600,frameborder = "no")
+    })
+    url <- a("More informations", href = as.character(unique(data[which(data[,"species"]== specie),"URL"])))
+    output$`More informations` <- renderUI({
+      tagList(url)
+    })
   })
-  output$frame <- renderUI({
-    tags$iframe(src=link, height=600, width=535,frameborder = "no")
+  ##############
+  logout_init <- callModule(shinyauthr::logout, 
+                            id = "logout", 
+                            active = reactive(credentials()$user_auth))
+  
+  credentials <- callModule(shinyauthr::login, 
+                            id = "login", 
+                            data = user_base,
+                            user_col = user,
+                            pwd_col = password,
+                            log_out = reactive(logout_init()))
+  
+  
+  output$import_data <- renderUI({
+    req(credentials()$user_auth)
+    fileInput("file1", "Choose CSV File",
+              multiple = FALSE,
+              accept = c("text/csv",
+                         "text/comma-separated-values,text/plain",
+                         ".csv"))
   })
+  
 }
 

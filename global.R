@@ -14,6 +14,15 @@ library("tidyverse")
 library("tidyr")
 library(shiny)
 library(markdown)
+library(shinyjs)
+library(shinyauthr)
+
+user_base <- data.frame(
+  user = c("user1", "user2"),
+  password = c("pass1", "pass2"), 
+  stringsAsFactors = FALSE,
+  row.names = NULL
+)
 
 ######################
 
