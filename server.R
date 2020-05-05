@@ -1,6 +1,7 @@
 
 # Define server logic 
 server <- function(input, output, session) {
+  
   observe({
     rank <- input$rank
     if (rank == "species") {
@@ -25,6 +26,7 @@ server <- function(input, output, session) {
         updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[2])
       })
     }
+    
     rank <- input$rank
     if (rank == "species") {
       data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
@@ -44,6 +46,11 @@ server <- function(input, output, session) {
     ######################
     #####Checking marche#####
     marche <- input$var3
+    if ("whole markets"%in%marche & length(marche) > 1) {
+      observe({
+        updateSelectInput(session,"var3",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = marche[2])
+      })
+    }
     data_cut <- data_cut_taxa
     if ("whole markets"%in%marche){
       data_cut <- data_cut_taxa
@@ -187,7 +194,8 @@ server <- function(input, output, session) {
   
   #####iframe######
   observeEvent(input$species,{
-    specie <- as.character(input$species)
+    name <- as.character(input$species)
+    specie <- str_split(name, " - ", simplify = TRUE)[1,2]
     link <<- paste0("https://species.wikimedia.org/wiki/",specie,"")
     output$frame <- renderUI({
       tags$iframe(src=link, height=1200, width=1600,frameborder = "no")
@@ -198,6 +206,8 @@ server <- function(input, output, session) {
     })
   })
   ##############
+  
+  #####Login#####
   logout_init <- callModule(shinyauthr::logout, 
                             id = "logout", 
                             active = reactive(credentials()$user_auth))
@@ -209,15 +219,68 @@ server <- function(input, output, session) {
                             pwd_col = password,
                             log_out = reactive(logout_init()))
   
+  #############
   
+  #####Import#####
   output$import_data <- renderUI({
     req(credentials()$user_auth)
-    fileInput("file1", "Choose CSV File",
+    fileInput("file1", "Download dataset as data_final.csv",
               multiple = FALSE,
               accept = c("text/csv",
-                         "text/comma-separated-values,text/plain",
+                         "text/Semicolon-separated-values,text/plain",
                          ".csv"))
   })
+  output$import_protocol <- renderUI({
+    req(credentials()$user_auth)
+    fileInput("file2","Dowload protocol as protocole.html",
+              multiple = FALSE,
+              accept = c("text/html",
+                         ".html"))
+  })
+  output$import_account <- renderUI({
+    req(credentials()$user_auth)
+    fileInput("file3", "Download account as account.csv",
+              multiple = FALSE,
+              accept = c("text/csv",
+                         "text/Semicolon-separated-values,text/plain",
+                         ".csv"))
+  })
+  ##############
   
+  #####Affichage import#####
+  output$contents_csv <- renderTable({
+    req(credentials()$user_auth)
+    req(input$file1)
+    
+    tryCatch(
+      {
+        data <- read.csv2(input$file1$datapath,
+                       header = TRUE)
+      },
+      error = function(e) {
+        # return a safeError if a parsing error occurs
+        stop(safeError(e))
+      }
+    )
+  })
+  
+  output$text <- renderUI({
+    req(credentials()$user_auth)
+    tags$h5("Column needed :")
+  })
+  
+  output$head_data <- renderUI({
+    req(credentials()$user_auth)
+    colonnes <- tolower(names(data)[1])
+    for (i in 2:length(names(data))){
+      colonnes <- tolower(paste(colonnes,names(data)[i],sep = ", "))
+    }
+    return(colonnes)
+  })
+  
+  output$text_2 <- renderUI({
+    req(credentials()$user_auth)
+    tags$h5("Column needed : username, password")
+  })
 }
 

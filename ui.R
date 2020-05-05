@@ -25,7 +25,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                  tabPanel("Species information",
                           sidebarLayout(
                             sidebarPanel(
-                              selectInput("species",label = "Species",choices = levels(data$species)),
+                              selectInput("species",label = "Species",choices = levels(data$name)),
                               htmlOutput("More informations"),
                               width = 2
                               ),
@@ -35,13 +35,20 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                           )
                         ),
                  tabPanel("Protocol",
-                          includeHTML("C:/Users/Utilisateur/Desktop/Stage/Programmes/R/App_Shiny_ESI_viande_brousse/App_Shiny_ESI_viande_brousse/ESI_viande_brousse/templates/protocole.html")
+                          includeHTML("C:/Users/Utilisateur/Desktop/Stage/Programmes/R/App_Shiny_ESI_viande_brousse/App_Shiny_ESI_viande_brousse/ESI_viande_brousse/protocole.html")
                  ),
                  tabPanel("Import dataset",
                           shinyjs::useShinyjs(),
                           div(class = 'pull-right', logoutUI(id = 'logout')),
                           loginUI(id='login'),
-                          uiOutput("import_data")
+                          uiOutput("import_data"),
+                          htmlOutput("text"),
+                          htmlOutput("head_data"),
+                          uiOutput("import_protocol"),
+                          uiOutput("import_account"),
+                          htmlOutput("text_2"),
+                          tableOutput("contents_csv"),
+                          htmlOutput("contents_html"),
                  )
 )
 
