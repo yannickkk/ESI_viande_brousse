@@ -1,7 +1,7 @@
 
 
 # Define UI for application 
-ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tags$a(img(src="esi.gif", style="margin-top: -15px",height ="50" ,width ="179" ), href="https://www.facebook.com/esicongo")),
+ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tags$a(img(src="esi.gif", style="margin-top: -15px",height ="50" ,width ="179" ), href="https://www.facebook.com/esicongo", target ="_blank")),
                  tabPanel("Dataviewer",
                           ######Sidebar Layout######
                           sidebarLayout(
@@ -26,7 +26,8 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                           sidebarLayout(
                             sidebarPanel(
                               selectInput("species",label = "Species",choices = levels(data$species)),
-                              htmlOutput("More informations")
+                              htmlOutput("More informations"),
+                              width = 2
                               ),
                             mainPanel(
                               htmlOutput("frame")

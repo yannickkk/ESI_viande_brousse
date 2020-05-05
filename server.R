@@ -6,19 +6,25 @@ server <- function(input, output, session) {
     if (rank == "species") {
       data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
     }
-    updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])))
+    updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected ="whole taxa")
   })
-  
-  
   
   ######Plotly#####
   output$plotly <- renderPlotly({
     validate(
       need(input$taxa != "", "Please select a taxa")
     )
+    validate(
+      need(input$var3 != "", "Please select a market")
+    )
     
     #####Checking taxa####
     taxa <- input$taxa
+    if ("whole taxa"%in%taxa & length(taxa) > 1) {
+      observe({
+        updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[2])
+      })
+    }
     rank <- input$rank
     if (rank == "species") {
       data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
@@ -186,7 +192,7 @@ server <- function(input, output, session) {
     output$frame <- renderUI({
       tags$iframe(src=link, height=1200, width=1600,frameborder = "no")
     })
-    url <- a("More informations", href = as.character(unique(data[which(data[,"species"]== specie),"URL"])))
+    url <- a(tags$h3("More informations about this species"), href = as.character(unique(data[which(data[,"species"]== specie),"URL"])),target ="_blank")
     output$`More informations` <- renderUI({
       tagList(url)
     })
