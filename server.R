@@ -232,7 +232,7 @@ server <- function(input, output, session) {
   })
   output$import_protocol <- renderUI({
     req(credentials()$user_auth)
-    fileInput("file2","Dowload protocol as protocole.html",
+    fileInput("file2","Download protocol as protocole.html",
               multiple = FALSE,
               accept = c("text/html",
                          ".html"))
@@ -247,6 +247,9 @@ server <- function(input, output, session) {
   })
   ##############
   
+  
+  
+  
   #####Affichage import#####
   output$contents_csv <- renderTable({
     req(credentials()$user_auth)
@@ -254,7 +257,7 @@ server <- function(input, output, session) {
     
     tryCatch(
       {
-        data <- read.csv2(input$file1$datapath,
+        data <<- read.csv2(input$file1$datapath,
                        header = TRUE)
       },
       error = function(e) {
@@ -281,6 +284,11 @@ server <- function(input, output, session) {
   output$text_2 <- renderUI({
     req(credentials()$user_auth)
     tags$h5("Column needed : username, password")
+  })
+  
+  output$data_test <- renderTable({
+    req(credentials()$user_auth)
+    input$file1 %>% head
   })
 }
 
