@@ -49,6 +49,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                           htmlOutput("text_2"),
                           tableOutput("contents_csv"),
                           htmlOutput("contents_html"),
+                          tableOutput("data_test"),
                  )
 )
 
