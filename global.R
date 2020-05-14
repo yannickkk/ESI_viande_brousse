@@ -16,6 +16,10 @@ library(shiny)
 library(markdown)
 library(shinyjs)
 library(shinyauthr)
+library(googledrive)
+library(leaflet)
+library(leaflet.minicharts)
+library(geojsonio)
 
 user_base <- data.frame(
   user = c("user1", "user2"),
@@ -24,12 +28,29 @@ user_base <- data.frame(
   row.names = NULL
 )
 
+####################permet de spécifier l'accès au drive #########
+drive_auth(
+  email = "esicongo763@gmail.com",
+  path = "token.JSON",
+  scopes = "https://www.googleapis.com/auth/drive",
+  cache = gargle::gargle_oauth_cache(),
+  use_oob = gargle::gargle_oob_default(),
+  token = NULL
+)
+
 ######################
 
 ######Initialisation######
-
-setwd("C:/Users/Utilisateur/Desktop/Stage/Outputs")
-data<- read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
+###################Si les fichiers protocoles et data_final n existent pas sous la racine de l'app ils sont telecharges depuis le drive
+##############ATTENTION le fichier global.R ne va être lu qu'au lancement de l'appli
+#if (!exists("protocole.html")) {drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)}
+#if (!exists("data_final.csv")) {drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)}
+#if (!exists("district.csv")) {drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)}
+data<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
+mymap <- geojsonio::geojson_read("districts.geojson", what = "sp")
+#setwd("C:/Users/Utilisateur/Desktop/Stage/Outputs")
+#data<- read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
+district <- read.csv2("district.csv",header=TRUE, encoding ="ANVI")
 data_p <- data
 
 ################################################

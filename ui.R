@@ -22,34 +22,47 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                             ),
                           DT::dataTableOutput("DT")
                           ),
+                 tabPanel("Spatial viewer",
+                          sidebarLayout(
+                            sidebarPanel(
+                              selectInput("rank2",label = "Choice a taxonomic rank",choices = list("species" = "species", "class" = "class", "order"="order","family"="family","genus"="genus")),
+                              selectInput("taxa2","Choice taxa (single or multiple",choices = c("whole taxa",data$species),multiple = TRUE,selected ="whole taxa"),
+                              selectInput("market2",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = "whole markets",multiple=TRUE),
+                              selectInput("statut",label = "Statut", choices =list("IUCN statut"="IUCN statut","Republic of Congo statut"="Republic of Congo statut"), selected = "Republic of Congo statut"),
+                              dateRangeInput("dates2", label = "Date range",start = "2008-01-01", end = "2019-12-31", min = "2008-01-01",max = "2019-12-31", format = 'yyyy', startview = "decade"),
+                              width = 2
+                            ),
+                            mainPanel(leafletOutput("map"),
+                                      width = 10,
+                            )
+                          )
+                        ),
                  tabPanel("Species information",
                           sidebarLayout(
                             sidebarPanel(
-                              selectInput("species",label = "Species",choices = levels(data$name)),
+                              selectInput("species",label = "Species",choices = c("",levels(data$name)),selected = ""),
                               htmlOutput("More informations"),
                               width = 2
                               ),
                             mainPanel(
-                              htmlOutput("frame")
+                              htmlOutput("frame"),
                             )
                           )
                         ),
                  tabPanel("Protocol",
-                          includeHTML("C:/Users/Utilisateur/Desktop/Stage/Programmes/R/App_Shiny_ESI_viande_brousse/App_Shiny_ESI_viande_brousse/ESI_viande_brousse/protocole.html")
+                          includeHTML("protocole.html")
                  ),
                  tabPanel("Import dataset",
                           shinyjs::useShinyjs(),
                           div(class = 'pull-right', logoutUI(id = 'logout')),
                           loginUI(id='login'),
+                          htmlOutput("Import data"),
                           uiOutput("import_data"),
-                          htmlOutput("text"),
                           htmlOutput("head_data"),
+                          htmlOutput("Import protocol"),
                           uiOutput("import_protocol"),
-                          uiOutput("import_account"),
-                          htmlOutput("text_2"),
-                          tableOutput("contents_csv"),
-                          htmlOutput("contents_html"),
-                          tableOutput("data_test"),
+                          htmlOutput("Import district"),
+                          uiOutput("import_district"),
                  )
 )
 
