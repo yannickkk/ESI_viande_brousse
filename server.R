@@ -1,4 +1,3 @@
-
 # Define server logic 
 server <- function(input, output, session) {
   
@@ -22,9 +21,16 @@ server <- function(input, output, session) {
     #####Checking taxa####
     taxa <- input$taxa
     if ("whole taxa"%in%taxa & length(taxa) > 1) {
-      observe({
-        updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[2])
-      })
+      if(taxa[1] == "whole taxa") {
+        observe({
+          updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[2])
+        })
+      } else {
+        observe({
+          updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[length(taxa)])
+        })
+      }
+      
     }
     
     rank <- input$rank
@@ -111,7 +117,7 @@ server <- function(input, output, session) {
       ####################
       ####Création du graphique####
       py_b_an <- plot_ly(type = 'bar') %>%
-      layout(yaxis = yaxis, margin = m,xaxis = xaxis, barmode = "stack")
+        layout(yaxis = yaxis, margin = m,xaxis = xaxis, barmode = "stack")
       for (i in dates) {
         if (i%in%unique(annee_cut)){
           py_b_an<- add_trace(py_b_an,x = ~unique(b_an[,"especes"]),y = b_an[which(b_an[,"annee"] == i),"Freq"], name = i)
@@ -151,7 +157,7 @@ server <- function(input, output, session) {
       ############################
     }
   })
-    
+  
   ######Tableau######
   output$DT <- DT::renderDataTable({
     #####Checking checkbox#####
@@ -247,7 +253,7 @@ server <- function(input, output, session) {
     req(credentials()$user_auth)
     h3("Import protocol")
   })
-    
+  
   output$import_protocol <- renderUI({
     req(credentials()$user_auth)
     actionButton("button2", label = "Click for import protocol")
@@ -295,10 +301,17 @@ server <- function(input, output, session) {
     #####Checking taxa####
     taxa2 <- input$taxa2
     if ("whole taxa"%in%taxa2 & length(taxa2) > 1) {
-    observe({
-       updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(data[,rank2])),selected = taxa2[2])
-      })
+      if(taxa2[1] == "whole taxa"){
+        observe({
+          updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(data[,rank2])),selected = taxa2[2])
+        })
+      } else {
+        observe({
+          updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(data[,rank2])),selected = taxa2[length(taxa2)])
+        })
+      }
     }
+    
     
     rank2 <- input$rank2
     if (rank2 == "species") {
@@ -316,6 +329,8 @@ server <- function(input, output, session) {
       }
       data_cut_taxa2$ESPECE.OBSERVEE <- factor(data_cut_taxa2$ESPECE.OBSERVEE,exclude=NULL)
     }
+    
+    
     ######################
     
     #####Checking marche#####
@@ -325,26 +340,55 @@ server <- function(input, output, session) {
         updateSelectInput(session,"market2",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = marche2[2])
       })
     }
-    data_cut2 <- data_cut_taxa2
+    data_cut2_market <- data_cut_taxa2
     if ("whole markets"%in%marche2){
-      data_cut2 <- data_cut_taxa2
+      data_cut2_market <- data_cut_taxa2
     } else {
-      data_cut2 <- data_cut_taxa2[which(data_cut_taxa2[,"LIEU"] == marche2[1]),]
+      data_cut2_market <- data_cut_taxa2[which(data_cut_taxa2[,"LIEU"] == marche2[1]),]
       if (length(marche2) > 1){
         for (i in 2:length(marche2)){
-          data_cut2 <- rbind(data_cut2,data_cut_taxa2[which(data_cut_taxa2[,"LIEU"] == marche2[i]),])
+          data_cut2_market <- rbind(data_cut2_market,data_cut_taxa2[which(data_cut_taxa2[,"LIEU"] == marche2[i]),])
         }
       }
-      data_cut2$LIEU <- factor(data_cut2$LIEU,exclude=NULL)
+      data_cut2_market$LIEU <- factor(data_cut2_market$LIEU,exclude=NULL)
     }
     ########################
+    
+    ########################
+    #####Checking date#####
+    dates_2 <- as.numeric(substring(input$dates2,1,4))
+    if (dates_2[1] == 2010){
+      dates_2[1] <- 2011
+    }
+    i <- dates_2[1]
+    dates <- as.character(i)
+    i <- i+1
+    while (i != dates_2[2]+1) {
+      if (i != 2010) {
+        dates <- c(dates,as.character(i))
+        i <- i+1
+      } else {
+        i <- i+1
+      }
+    }
+    
+    data_cut2 <- data_cut2_market[which(substring(data_cut2_market[,"DATE"],7,10) == dates[1]),]
+    if (length(dates) > 1){
+      for (i in 2:length(dates)){
+        data_cut2 <- rbind(data_cut2,data_cut2_market[which(substring(data_cut2_market[,"DATE"],7,10) == dates[i]),])
+      }
+    }
+    data_cut2$DATE <- factor(data_cut2$DATE,exclude=NULL)
+    #####################
     
     #####Checking statut#####
     statut <- input$statut
     if ("IUCN statut"%in%statut){
       df <- data.frame(table(data_cut2$DISTRICT,data_cut2$iucn_cat))
+      pal <- c("#FF0C00","#666968","#FB8010","#1AC227","#D2FF05","#FBD610")
     }else{
       df <- data.frame(table(data_cut2$DISTRICT,data_cut2$STATUT.CONGO))
+      pal <- c("#FF0C00","#FFAE05","#1AC227","#666968")
     }
     names(df) <- c("District","Statut","Freq")
     
@@ -352,86 +396,56 @@ server <- function(input, output, session) {
     df$DISTRICT <- NA
     df$lng <- NA
     df$lat <- NA
+    # for (i in unique(df[,c("District")])){
+    #   if(length(district[which(district[,"sous_district"]== i),"district"] != 0)){
+    #     df[which(df[,c("District")]==i),"DISTRICT"] <- strrep(district[which(district[,"sous_district"]==i),"district"],1)
+    #     df[which(df[,c("District")]==i),"lng"] <- rep(district[which(district[,"sous_district"]==i),"lng"],length(df[which(df[,c("District")] == i),"lng"]))
+    #     df[which(df[,c("District")]==i),"lat"] <- rep(district[which(district[,"sous_district"]==i),"lat"],length(df[which(df[,c("District")] == i),"lat"]))
+    #   }
+    # } 
     for (i in unique(df[,c("District")])){
-      if(length(district[which(district[,"sous_district"]== i),"district"] != 0)){
-        df[which(df[,c("District")]==i),"DISTRICT"] <- strrep(district[which(district[,"sous_district"]==i),"district"],1)
-        df[which(df[,c("District")]==i),"lng"] <- rep(district[which(district[,"sous_district"]==i),"lng"],length(df[which(df[,c("District")] == i),"lng"]))
-        df[which(df[,c("District")]==i),"lat"] <- rep(district[which(district[,"sous_district"]==i),"lat"],length(df[which(df[,c("District")] == i),"lat"]))
-      }
-    } 
+      if(length(which(cent_dist_geo[,"ADM2_FR"]$ADM2_FR== i) != 0)){
+      df[which(df[,c("District")]==i),"DISTRICT"] <- strrep(i,1)
+      df[which(df[,c("District")]==i),"lng"] <- rep(coordinates(cent_dist_geo[which(cent_dist_geo[,"ADM2_FR"]$ADM2_FR==i),])[,"coords.x1"],length(df[which(df[,c("District")] == i),"lng"]))
+      df[which(df[,c("District")]==i),"lat"] <- rep(coordinates(cent_dist_geo[which(cent_dist_geo[,"ADM2_FR"]$ADM2_FR==i),])[,"coords.x2"],length(df[which(df[,c("District")] == i),"lat"]))
+    }}
     names(df) <- c("sous_district","Statut","Freq","District","lng","lat")
     
     #####################
     ####Création des données pour chaque district#####
-    ######Kakamoéka#####
-    df_Kakamoéka <- df[which(df[,c("District")]=="Kakamoéka"), c("Statut","Freq","District","lng","lat")]
-    df_Kakamoéka %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Kakamoéka <- df_Kakamoéka[!duplicated(df_Kakamoéka[,c('Statut')]),]
+    df$District <- as.factor(df$District)
+    name_df <- c()
+    for (i in levels(df$District)){
+      name <- paste("df",i,sep ="_")
+      df_district <- df[which(df[,c("District")]== i), c("Statut","Freq","District","lng","lat")]
+      df_district %>%
+        group_by(Statut) %>%
+        mutate(Freq = sum(Freq))
+      
+      df_district <- df_district[!duplicated(df_district[,c('Statut')]),]
+      assign(name,df_district)
+      name_df <- c(name_df,name)
+    }
     
-    #####################
-    #####Madingo-Kayes#####
-    df_Madingo_Kayes <- df[which(df[,c("District")]=="Madingo-Kayes"), c("Statut","Freq","District","lng","lat")]
-    df_Madingo_Kayes %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Madingo_Kayes <- df_Madingo_Kayes[!duplicated(df_Madingo_Kayes[,c('Statut')]),]
-    ######Cabinda########
-    df_Cabinda <- df[which(df[,c("District")]=="Cabinda"), c("Statut","Freq","District","lng","lat")]
-    df_Cabinda %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Cabinda <- df_Cabinda[!duplicated(df_Cabinda[,c('Statut')]),]
-    ####################
-    ######Mvouti########
-    df_Mvouti <- df[which(df[,c("District")]=="Mvouti"), c("Statut","Freq","District","lng","lat")]
-    df_Mvouti %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Mvouti <- df_Mvouti[!duplicated(df_Mvouti[,c('Statut')]),]
-    ###################
-    #####Djambala######
-    df_Djambala <- df[which(df[,c("District")]=="Djambala"), c("Statut","Freq","District","lng","lat")]
-    df_Djambala %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Djambala <- df_Djambala[!duplicated(df_Djambala[,c('Statut')]),]
-    ##################
-    ######Louvakou######
-    df_Louvakou<- df[which(df[,c("District")]=="Louvakou (Loubomo)"), c("Statut","Freq","District","lng","lat")]
-    df_Louvakou%>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Louvakou<- df_Louvakou[!duplicated(df_Louvakou[,c('Statut')]),]
-    ###################
-    #####Loandjili#####
-    df_Loandjili <- df[which(df[,c("District")]=="Loandjili (Pointe Noire)"), c("Statut","Freq","District","lng","lat")]
-    df_Loandjili %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Loandjili <- df_Loandjili[!duplicated(df_Loandjili[,c('Statut')]),]
-    ###################
-    #####Mossendjo#####
-    df_Mossendjo <- df[which(df[,c("District")]=="Mossendjo"), c("Statut","Freq","District","lng","lat")]
-    df_Mossendjo %>%
-      group_by(Statut) %>%
-      mutate(Freq = sum(Freq))
-    df_Mossendjo <- df_Mossendjo[!duplicated(df_Mossendjo[,c('Statut')]),]
     #################
-    leaflet(mymap) %>%
-      addTiles()  %>%# Add default OpenStreetMap map tiles
+    #################
+    tilesURL <-"https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png"
+    
+    prot_geo <- leaflet(data=c(protected_geo,distircts_geo)) %>%
+      addTiles(tilesURL)  %>%# Add default OpenStreetMap map tiles
       setView(lng=12.330, lat=-4.029,zoom = 8) %>%
-      addPolygons(stroke = FALSE, smoothFactor = 0.6, fillOpacity = 0.3,color = rainbow(6)) %>%
-      addMinicharts(df_Kakamoéka$lng[1],df_Kakamoéka$lat[1],type = "pie", chartdata = df_Kakamoéka$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Madingo_Kayes$lng[1],df_Madingo_Kayes$lat[1],type = "pie", chartdata = df_Madingo_Kayes$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Cabinda$lng[1],df_Cabinda$lat[1],type = "pie", chartdata = df_Cabinda$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Mvouti$lng[1],df_Mvouti$lat[1],type = "pie", chartdata = df_Mvouti$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Djambala$lng[1],df_Djambala$lat[1],type = "pie", chartdata = df_Djambala$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Louvakou$lng[1],df_Louvakou$lat[1],type = "pie", chartdata = df_Louvakou$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Loandjili$lng[1],df_Loandjili$lat[1],type = "pie", chartdata = df_Loandjili$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addMinicharts(df_Mossendjo$lng[1],df_Mossendjo$lat[1],type = "pie", chartdata = df_Mossendjo$Freq,width = 75, showLabels = TRUE, colorPalette=rainbow(length(levels(df$Statut))),opacity =0.7,labelMinSize = 1,labelMaxSize = 16) %>%
-      addLegend("bottomright",title = "Statuts", colors = rainbow(length(levels(df$Statut))),labels = levels(df$Statut),opacity = 0.7)
+      addPolygons(data =protected_geo, stroke = TRUE, smoothFactor = 0.6, fill = TRUE, label  = protected_geo$NAME,  color = "black", weight= 2, fillColor= "#FFFFCC", fillOpacity = 0.4) %>%
+      addPolygons(data = distircts_geo, stroke = TRUE, smoothFactor = 0.6, fill = TRUE, label  = distircts_geo$ADM2_FR, color = "grey", dashArray = "3", weight= 3.95, fillOpacity = 0) %>%
+      addLegend("bottomright",title = "Statuts", colors = pal,labels = levels(df$Statut),opacity = 0.7)
+      
+      for (i in name_df){
+        d <- get(i)
+        Freq <- d %>% select(Freq)
+        rownames(Freq) <- d$Statut
+        Freq <- t(Freq)
+        prot_geo <- addMinicharts(map = prot_geo, lng = d$lng[1],lat = d$lat[1],type = "pie", chartdata = Freq,width = 75, showLabels = TRUE, colorPalette=pal ,opacity =0.7,labelMinSize = 1,labelMaxSize = 16)
+      }
+      
+      prot_geo
   })
 }
-
