@@ -20,6 +20,10 @@ library(googledrive)
 library(leaflet)
 library(leaflet.minicharts)
 library(geojsonio)
+library(units)
+library(maptools)
+#library(mapview)
+library(leafsync)
 
 user_base <- data.frame(
   user = c("user1", "user2"),
@@ -43,11 +47,14 @@ drive_auth(
 ######Initialisation######
 ###################Si les fichiers protocoles et data_final n existent pas sous la racine de l'app ils sont telecharges depuis le drive
 ##############ATTENTION le fichier global.R ne va être lu qu'au lancement de l'appli
-#if (!exists("protocole.html")) {drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)}
-#if (!exists("data_final.csv")) {drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)}
-#if (!exists("district.csv")) {drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)}
+# if (!exists("protocole.html")) {drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)}
+# if (!exists("data_final.csv")) {drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)}
+# if (!exists("district.csv")) {drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)}
 data<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
-mymap <- geojsonio::geojson_read("districts.geojson", what = "sp")
+
+distircts_geo<- geojsonio::geojson_read("districts_v2.geojson", what = "sp")
+protected_geo<-geojsonio::geojson_read("protected_area.geojson", what = "sp")
+cent_dist_geo<-geojsonio::geojson_read("districts_centroids_v2.geojson", what = "sp")
 #setwd("C:/Users/Utilisateur/Desktop/Stage/Outputs")
 #data<- read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
 district <- read.csv2("district.csv",header=TRUE, encoding ="ANVI")

@@ -17,7 +17,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                             ######Main Panel######
                             mainPanel( 
                               plotlyOutput("plotly",height="600px"),
-                              width = 10,)
+                              width = 10)
                             ###################
                             ),
                           DT::dataTableOutput("DT")
@@ -32,8 +32,8 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                               dateRangeInput("dates2", label = "Date range",start = "2008-01-01", end = "2019-12-31", min = "2008-01-01",max = "2019-12-31", format = 'yyyy', startview = "decade"),
                               width = 2
                             ),
-                            mainPanel(leafletOutput("map"),
-                                      width = 10,
+                            mainPanel(leafletOutput("map", height = 850),
+                                      width = 10
                             )
                           )
                         ),
@@ -45,7 +45,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                               width = 2
                               ),
                             mainPanel(
-                              htmlOutput("frame"),
+                              htmlOutput("frame")
                             )
                           )
                         ),
@@ -62,7 +62,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                           htmlOutput("Import protocol"),
                           uiOutput("import_protocol"),
                           htmlOutput("Import district"),
-                          uiOutput("import_district"),
+                          uiOutput("import_district")
                  )
 )
 
