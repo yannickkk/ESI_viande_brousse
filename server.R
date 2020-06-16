@@ -202,19 +202,22 @@ server <- function(input, output, session) {
   
   
   observeEvent(input$species,{
-    shiny::validate(
-      need(input$species != "", "Please select a specie")
-    )
-    name <- as.character(input$species)
-    specie <- str_split(name, " - ", simplify = TRUE)[1,2]
-    link <<- paste0("https://species.wikimedia.org/wiki/",specie,"")
-    output$frame <- renderUI({
-      tags$iframe(src=link, height=1200, width=1600,frameborder = "no")
-    })
-    url <- a(tags$h3("More informations about this species"), href = as.character(unique(data[which(data[,"species"]== specie),"URL"])),target ="_blank")
-    output$`More informations` <- renderUI({
-      tagList(url)
-    })
+    if (input$species == ""){
+      output$frame <- renderUI({
+        tags$iframe(src="https://species.wikimedia.org/wiki", height=1200, width=1600,frameborder = "no")
+      })
+    } else {
+      name <- as.character(input$species)
+      specie <- str_split(name, " - ", simplify = TRUE)[1,2]
+      link <<- paste0("https://species.wikimedia.org/wiki/",specie,"")
+      output$frame <- renderUI({
+        tags$iframe(src=link, height=1200, width=1600,frameborder = "no")
+      })
+      url <- a(tags$h3("More informations about this species"), href = as.character(unique(data[which(data[,"species"]== specie),"URL"])),target ="_blank")
+      output$`More informations` <- renderUI({
+        tagList(url)
+      })
+    }
   })
   ##############
   
@@ -444,7 +447,7 @@ server <- function(input, output, session) {
       addTiles(tilesURL)  %>%# Add default OpenStreetMap map tiles
       setView(lng=12.330, lat=-4.029,zoom = 8) %>%
       addPolygons(data = distircts_geo, stroke = TRUE, smoothFactor = 0.6, fill = TRUE, label  = distircts_geo$ADM2_FR, color = "grey", dashArray = "3", weight= 3.95, fillOpacity = 0,labelOptions = labelOptions(textsize = "13px")) %>%
-      addPolygons(data =protected_geo, stroke = TRUE, smoothFactor = 0.6, fill = TRUE, label  = protected_geo$NAME,  color = "black", weight= 2, fillColor= "#FFFFCC", fillOpacity = 0.4,labelOptions = labelOptions(textsize = "13px")) %>%
+      addPolygons(data =protected_geo, stroke = TRUE, smoothFactor = 0.6, fill = TRUE, label  = protected_geo$NAME,  color = "black", weight= 2, fillColor= "#33FF00", fillOpacity = 0.4,labelOptions = labelOptions(textsize = "13px")) %>%
       addLegend("topright",title = "Statuts", colors = pal,labels = levels(df$Statut),opacity = 0.7)
       
       for (i in name_df){
@@ -455,7 +458,6 @@ server <- function(input, output, session) {
         if (substring(i,4)=="Autre"){
           prot_geo <- addMinicharts(map = prot_geo, lng = d$lng[1],lat = d$lat[1],type = "pie", chartdata = Freq,width = 75, showLabels = TRUE, colorPalette=pal ,opacity =0.7,labelMinSize = 1,labelMaxSize = 32,layerId = "Origin unknown",popup = popupArgs(),legend = FALSE)
         } else {
-          print(Freq)
           prot_geo <- addMinicharts(map = prot_geo, lng = d$lng[1],lat = d$lat[1],type = "pie", chartdata = Freq,width = 75, showLabels = TRUE, colorPalette=pal ,opacity =0.7,labelMinSize = 1,labelMaxSize = 32, layerId = substring(i,4),popup = popupArgs(labels = levels(df$Statut)),legend = FALSE)
         }
       }
