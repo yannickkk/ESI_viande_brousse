@@ -88,6 +88,7 @@ server <- function(input, output, session) {
     }
     #####################
     annee_cut<-substring(data_cut[,"DATE"],7,10)
+    b_an <- data.frame(table(tolower(data_cut$ESPECE.OBSERVEE),annee_cut))
     b_an <- data.frame(table(tolower(data_cut$ESPECE.OBSERVEE),data_cut$QUANTITE,annee_cut))
     b_an$Var2 <- as.numeric(b_an$Var2)
     b_an$freq <- as.numeric(b_an$Freq)
@@ -409,13 +410,6 @@ server <- function(input, output, session) {
     df$DISTRICT <- NA
     df$lng <- NA
     df$lat <- NA
-    # for (i in unique(df[,c("District")])){
-    #   if(length(district[which(district[,"sous_district"]== i),"district"] != 0)){
-    #     df[which(df[,c("District")]==i),"DISTRICT"] <- strrep(district[which(district[,"sous_district"]==i),"district"],1)
-    #     df[which(df[,c("District")]==i),"lng"] <- rep(district[which(district[,"sous_district"]==i),"lng"],length(df[which(df[,c("District")] == i),"lng"]))
-    #     df[which(df[,c("District")]==i),"lat"] <- rep(district[which(district[,"sous_district"]==i),"lat"],length(df[which(df[,c("District")] == i),"lat"]))
-    #   }
-    # } 
     for (i in unique(df[,c("District")])){
       if(length(which(cent_dist_geo[,"ADM2_FR"]$ADM2_FR== i) != 0)){
       df[which(df[,c("District")]==i),"DISTRICT"] <- strrep(i,1)
