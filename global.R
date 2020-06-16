@@ -51,7 +51,12 @@ drive_auth(
 # if (!exists("data_final.csv")) {drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)}
 # if (!exists("district.csv")) {drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)}
 data<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
-data$QUANTITE <- replace(data$QUANTITE,is.na(data$QUANTITE),1)
+data$QUANTITE <- as.character(data$QUANTITE)
+data$QUANTITE <- replace(data$QUANTITE,is.na(data$QUANTITE),"1")
+data$QUANTITE <- replace(data$QUANTITE,data$QUANTITE == "","1")
+data$QUANTITE <- replace(data$QUANTITE,data$QUANTITE == "autre","1")
+data$QUANTITE <- as.numeric(data$QUANTITE)
+
 
 distircts_geo<- geojsonio::geojson_read("districts_v2.geojson", what = "sp")
 protected_geo<-geojsonio::geojson_read("protected_area.geojson", what = "sp")

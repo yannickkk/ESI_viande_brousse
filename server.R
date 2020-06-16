@@ -88,7 +88,16 @@ server <- function(input, output, session) {
     }
     #####################
     annee_cut<-substring(data_cut[,"DATE"],7,10)
-    b_an <- data.frame(table(tolower(data_cut$ESPECE.OBSERVEE),annee_cut))
+    b_an <- data.frame(table(tolower(data_cut$ESPECE.OBSERVEE),data_cut$QUANTITE,annee_cut))
+    b_an$Var2 <- as.numeric(b_an$Var2)
+    b_an$freq <- as.numeric(b_an$Freq)
+    b_an$Freq <- b_an$Var2*b_an$Freq
+    b_an <- b_an[,-2]
+    b_an <- b_an %>%
+      group_by(Var1,annee_cut) %>%
+      summarise(Freq = sum(Freq))
+    
+    b_an <- data.frame(b_an)
     names(b_an) <- c('especes','annee','Freq')
     #####Checking checkbox#####
     if (input$checkbox) {
@@ -160,37 +169,40 @@ server <- function(input, output, session) {
   
   ######Tableau######
   output$DT <- DT::renderDataTable({
+    #####Checking marché#####
+    if (input$var3 != 'whole markets') {
+      data_p <- data_p[which(data_p$LIEU == input$var3),]
+    }
+    
+    #####Création Dataframe#####
+    annee_p<-substring(data_p[,"DATE"],7,10)
+    b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$species,sep=', '),data_p$QUANTITE,annee_p))
+    b_an_p$Var2 <- as.numeric(b_an_p$Var2)
+    b_an_p$freq <- as.numeric(b_an_p$Freq)
+    b_an_p$Freq <- b_an_p$Var2*b_an_p$Freq
+    b_an_p <- b_an_p[,-2]
+    b_an_p <- b_an_p %>%
+      group_by(Var1,annee_p) %>%
+      summarise(Freq = sum(Freq))
+    
+    b_an_p <- data.frame(b_an_p)
+    names(b_an_p)<-c("especes","annee","Freq")
+    ############################
     #####Checking checkbox#####
     if (input$checkbox) {
-      #####Checking Marché#####
-      if (input$var3 != 'whole markets') {
-        data_p <- data_p[which(data_p$LIEU == input$var3),]
-      }
-      #######################
       #####Récupération fréquence/visites######
-      annee_p<-substring(data_p[,"DATE"],7,10) 
       jours_visite_annee_p<-table(substring(unique(data_p[,"DATE"]),7,10))
-      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$species,sep=', '),annee_p))
       for (i in names(jours_visite_annee_p)){
-        b_an_p[which(as.character(b_an_p[,"annee_p"]) == i), "Freq"] <- round(b_an_p[which(as.character(b_an_p[,"annee_p"]) == i), "Freq"]/jours_visite_annee_p[i],2)
+        b_an_p[which(as.character(b_an_p[,"annee"]) == i), "Freq"] <- round(b_an_p[which(as.character(b_an_p[,"annee"]) == i), "Freq"]/jours_visite_annee_p[i],2)
       }
       ######################################
       ######Création table#####
-      names(b_an_p)<-c("especes","annee","Freq")
       b_an_p<-cast(b_an_p,formula = especes~annee,value.var = "Freq")
       DT::datatable(b_an_p)
       #######################
     }
     else{
-      #####Checking marché#####
-      if (input$var3 != 'whole markets') {
-        data_p <- data_p[which(data_p$LIEU == input$var3),]
-      }
-      #######################
       ######Création table######
-      annee_p<-substring(data_p[,"DATE"],7,10)
-      b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$species,sep=', '),annee_p))
-      names(b_an_p)<-c("especes","annee","Freq")
       b_an_p<-cast(b_an_p,formula = especes~annee,value.var = "Freq")
       DT::datatable(b_an_p)
       #######################
