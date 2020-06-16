@@ -17,6 +17,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                             ######Main Panel######
                             mainPanel( 
                               plotlyOutput("plotly",height="600px"),
+                              h6("Certaines données ont été réajusté pour compenser le manque d'informations"),
                               width = 10)
                             ###################
                             ),
