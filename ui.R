@@ -6,8 +6,8 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                           ######Sidebar Layout######
                           sidebarLayout(
                             sidebarPanel(
-                              selectInput("rank",label = "Choice a taxonomic rank",choices = list("species" = "species", "class" = "class", "order"="order","family"="family","genus"="genus")),
-                              selectInput("taxa","Choice taxa (single or multiple",paste("whole taxa",data$species),multiple = TRUE,selected ="whole taxa"),
+                              selectInput("rank",label = "Choice taxonomic rank",choices = list("species" = "species", "class" = "class", "order"="order","family"="family","genus"="genus")),
+                              selectInput("taxa","Choice taxa (single or multiple)",paste("whole taxa",data$species),multiple = TRUE,selected ="whole taxa"),
                               selectInput("var3",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = "whole markets",multiple=TRUE),
                               checkboxInput("checkbox", label = "Display weighted data : Number of bush meat occurences divided by number of visits", value = FALSE),
                               checkboxInput("checkboxlog", label = "Display logarithmic scale for y axis", value = FALSE),
