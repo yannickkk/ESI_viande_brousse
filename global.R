@@ -33,14 +33,18 @@ user_base <- data.frame(
 )
 
 ####################permet de spécifier l'accès au drive #########
-drive_auth(
-  email = "esicongo763@gmail.com",
-  path = "token.JSON",
-  scopes = "https://www.googleapis.com/auth/drive",
-  cache = gargle::gargle_oauth_cache(),
-  use_oob = gargle::gargle_oob_default(),
-  token = NULL
+options(
+  gargle_oob_default = TRUE
 )
+
+drive_auth <- function(
+    email = "esicongo763@gmail.com",
+    path = "token.JSON",
+    scopes = "https://www.googleapis.com/auth/drive",
+    cache = gargle::gargle_oauth_cache(),
+    use_oob = gargle::gargle_oob_default(),
+    token = NULL
+  )
 
 ######################
 
