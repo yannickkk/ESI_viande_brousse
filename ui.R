@@ -26,7 +26,7 @@ ui <- navbarPage(windowTitle = "ESI Pointe Noire bushmeat survey", title=div(tag
                  tabPanel("Spatial viewer",
                           sidebarLayout(
                             sidebarPanel(
-                              selectInput("rank2",label = "Choice a taxonomic rank",choices = list("species" = "species", "class" = "class", "order"="order","family"="family","genus"="genus")),
+                              selectInput("rank2",label = "Choice taxonomic rank",choices = list("species" = "species", "class" = "class", "order"="order","family"="family","genus"="genus")),
                               selectInput("taxa2","Choice taxa (single or multiple",choices = c("whole taxa",data$species),multiple = TRUE,selected ="whole taxa"),
                               selectInput("market2",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = "whole markets",multiple=TRUE),
                               selectInput("statut",label = "Statut", choices =list("IUCN statut"="IUCN statut","Republic of Congo statut"="Republic of Congo statut"), selected = "Republic of Congo statut"),
