@@ -24,13 +24,10 @@ library(units)
 library(maptools)
 #library(mapview)
 library(leafsync)
+library(sodium)
 
-user_base <- data.frame(
-  user = c("user1", "user2"),
-  password = c("pass1", "pass2"), 
-  stringsAsFactors = FALSE,
-  row.names = NULL
-)
+user_base <- readRDS("user_base.rds")
+
 
 ####################permet de spécifier l'accès au drive #########
 options(

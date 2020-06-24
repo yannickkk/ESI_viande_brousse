@@ -88,7 +88,6 @@ server <- function(input, output, session) {
     }
     #####################
     annee_cut<-substring(data_cut[,"DATE"],7,10)
-    b_an <- data.frame(table(tolower(data_cut$ESPECE.OBSERVEE),annee_cut))
     b_an <- data.frame(table(tolower(data_cut$ESPECE.OBSERVEE),data_cut$QUANTITE,annee_cut))
     b_an$Var2 <- as.numeric(b_an$Var2)
     b_an$freq <- as.numeric(b_an$Freq)
@@ -244,6 +243,7 @@ server <- function(input, output, session) {
                             data = user_base,
                             user_col = user,
                             pwd_col = password,
+                            sodium_hashed = TRUE,
                             log_out = reactive(logout_init()))
   
   #############
