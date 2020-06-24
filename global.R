@@ -26,24 +26,9 @@ library(maptools)
 library(leafsync)
 library(sodium)
 
-user_base <- readRDS("user_base.rds")
+source("user_base.R")
+source("access_drive.R")
 
-
-####################permet de spécifier l'accès au drive #########
-options(
-  gargle_oob_default = TRUE
-)
-
-drive_auth <- function(
-    email = "esicongo763@gmail.com",
-    path = "token.JSON",
-    scopes = "https://www.googleapis.com/auth/drive",
-    cache = gargle::gargle_oauth_cache(),
-    use_oob = gargle::gargle_oob_default(),
-    token = NULL
-  )
-
-######################
 
 ######Initialisation######
 ###################Si les fichiers protocoles et data_final n existent pas sous la racine de l'app ils sont telecharges depuis le drive
@@ -51,7 +36,7 @@ drive_auth <- function(
 # if (!exists("protocole.html")) {drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)}
 # if (!exists("data_final.csv")) {drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)}
 # if (!exists("district.csv")) {drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)}
-data<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
+
 data$QUANTITE <- replace(data$QUANTITE,is.na(data$QUANTITE),1)
 ##Transformation de NA en 1 pour compenser le manque d'informations
 
