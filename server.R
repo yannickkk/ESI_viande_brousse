@@ -4,9 +4,9 @@ server <- function(input, output, session) {
   observe({
     rank <- input$rank
     if (rank == "species") {
-      data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
+      dat$species <- as.factor(paste(dat$ESPECE.OBSERVEE,dat$species,sep =" - "))
     }
-    updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected ="whole taxa")
+    updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(dat[,rank])),selected ="whole taxa")
   })
   
   ######Plotly#####
@@ -23,11 +23,11 @@ server <- function(input, output, session) {
     if ("whole taxa"%in%taxa & length(taxa) > 1) {
       if(taxa[1] == "whole taxa") {
         observe({
-          updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[2])
+          updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(dat[,rank])),selected = taxa[2])
         })
       } else {
         observe({
-          updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(data[,rank])),selected = taxa[length(taxa)])
+          updateSelectInput(session,"taxa",label = paste('Select ',rank),choices = c("whole taxa",levels(dat[,rank])),selected = taxa[length(taxa)])
         })
       }
       
@@ -35,16 +35,16 @@ server <- function(input, output, session) {
     
     rank <- input$rank
     if (rank == "species") {
-      data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
+      dat$species <- as.factor(paste(dat$ESPECE.OBSERVEE,dat$species,sep =" - "))
     }
-    data_cut_taxa <- data
+    data_cut_taxa <- dat
     if ("whole taxa"%in%taxa){
-      data_cut_taxa <- data
+      data_cut_taxa <- dat
     } else {
-      data_cut_taxa <- data[which(data[,rank] == taxa[1]),]
+      data_cut_taxa <- dat[which(dat[,rank] == taxa[1]),]
       if (length(taxa)>1){
         for (i in 2:length(taxa)){
-          data_cut_taxa <- rbind(data_cut_taxa,data[which(data[,rank] == taxa[i]),])
+          data_cut_taxa <- rbind(data_cut_taxa,dat[which(dat[,rank] == taxa[i]),])
         }
       }
       data_cut_taxa$ESPECE.OBSERVEE <- factor(data_cut_taxa$ESPECE.OBSERVEE,exclude=NULL)
@@ -54,7 +54,8 @@ server <- function(input, output, session) {
     marche <- input$var3
     if ("whole markets"%in%marche & length(marche) > 1) {
       observe({
-        updateSelectInput(session,"var3",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = marche[2])
+        updateSelectInput(session,"var3",label= "Choice market (single or multiple)",choices = c("whole markets", levels(dat$LIEU)),selected = marche [2])
+         
       })
     }
     data_cut <- data_cut_taxa
@@ -124,7 +125,7 @@ server <- function(input, output, session) {
         )
       }
       ####################
-      ####Création du graphique####
+      ####CrC)ation du graphique####
       py_b_an <- plot_ly(type = 'bar') %>%
         layout(yaxis = yaxis, margin = m,xaxis = xaxis, barmode = "stack")
       for (i in dates) {
@@ -154,7 +155,7 @@ server <- function(input, output, session) {
         )
       }
       ####################
-      ####Création du graphique####
+      ####CrC)ation du graphique####
       py_b_an <- plot_ly(type = 'bar') %>%
         layout(yaxis = yaxis, margin = m,xaxis = xaxis, barmode = "stack")
       for (i in dates) {
@@ -169,12 +170,12 @@ server <- function(input, output, session) {
   
   ######Tableau######
   output$DT <- DT::renderDataTable({
-    #####Checking marché#####
-    if (input$var3 != 'whole markets') {
+    #####Checking marchC)#####
+     if (input$var3 != 'whole markets') {
       data_p <- data_p[which(data_p$LIEU == input$var3),]
     }
     
-    #####Création Dataframe#####
+    #####CrC)ation Dataframe#####
     annee_p<-substring(data_p[,"DATE"],7,10)
     b_an_p <- data.frame(table(paste(data_p$ESPECE.OBSERVEE,data_p$species,sep=', '),data_p$QUANTITE,annee_p))
     b_an_p$Var2 <- as.numeric(b_an_p$Var2)
@@ -190,19 +191,19 @@ server <- function(input, output, session) {
     ############################
     #####Checking checkbox#####
     if (input$checkbox) {
-      #####Récupération fréquence/visites######
+      #####RC)cupC)ration frC)quence/visites######
       jours_visite_annee_p<-table(substring(unique(data_p[,"DATE"]),7,10))
       for (i in names(jours_visite_annee_p)){
         b_an_p[which(as.character(b_an_p[,"annee"]) == i), "Freq"] <- round(b_an_p[which(as.character(b_an_p[,"annee"]) == i), "Freq"]/jours_visite_annee_p[i],2)
       }
       ######################################
-      ######Création table#####
+      ######CrC)ation table#####
       b_an_p<-cast(b_an_p,formula = especes~annee,value.var = "Freq")
       DT::datatable(b_an_p)
       #######################
     }
     else{
-      ######Création table######
+      ######CrC)ation table######
       b_an_p<-cast(b_an_p,formula = especes~annee,value.var = "Freq")
       DT::datatable(b_an_p)
       #######################
@@ -225,7 +226,7 @@ server <- function(input, output, session) {
       output$frame <- renderUI({
         tags$iframe(src=link, height=1200, width=1600,frameborder = "no")
       })
-      url <- a(tags$h3("More informations about this species"), href = as.character(unique(data[which(data[,"species"]== specie),"URL"])),target ="_blank")
+      url <- a(tags$h3("More informations about this species"), href = as.character(unique(dat[which(dat[,"species"]== specie),"URL"])),target ="_blank")
       output$`More informations` <- renderUI({
         tagList(url)
       })
@@ -234,64 +235,64 @@ server <- function(input, output, session) {
   ##############
   
   #####Login#####
-  logout_init <- callModule(shinyauthr::logout, 
-                            id = "logout", 
-                            active = reactive(credentials()$user_auth))
-  
-  credentials <- callModule(shinyauthr::login, 
-                            id = "login", 
-                            data = user_base,
-                            user_col = user,
-                            pwd_col = password,
-                            sodium_hashed = TRUE,
-                            log_out = reactive(logout_init()))
+  # logout_init <- callModule(shinyauthr::logout, 
+  #                           id = "logout", 
+  #                           active = reactive(credentials()$user_auth))
+  # 
+  # credentials <- callModule(shinyauthr::login, 
+  #                           id = "login", 
+  #                           data = user_base,
+  #                           user_col = user,
+  #                           pwd_col = password,
+  #                           sodium_hashed = TRUE,
+  #                           log_out = reactive(logout_init()))
   
   #############
   
   #####Import#####
   
-  output$`Import data` <- renderUI({
-    req(credentials()$user_auth)
-    h3("Import data")
-  })
-  
-  output$import_data <- renderUI({
-    req(credentials()$user_auth)
-    actionButton("button1", label = "Click for import data")
-  })
-  
-  observeEvent(input$button1,{
-    drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)
-    data<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
-  })
-  
-  output$`Import protocol` <- renderUI({
-    req(credentials()$user_auth)
-    h3("Import protocol")
-  })
-  
-  output$import_protocol <- renderUI({
-    req(credentials()$user_auth)
-    actionButton("button2", label = "Click for import protocol")
-  })
-  
-  observeEvent(input$button2,{
-    drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)
-  })
-  
-  output$`Import district` <- renderUI({
-    req(credentials()$user_auth)
-    h3("Import district")
-  })
-  
-  output$import_district <- renderUI({
-    req(credentials()$user_auth)
-    actionButton("button3", label = "Click for import district")
-  })
-  
-  observeEvent(input$button3,{
-    drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)
-  })
+  # output$`Import data` <- renderUI({
+  #   req(credentials()$user_auth)
+  #   h3("Import data")
+  # })
+  # 
+  # output$import_data <- renderUI({
+  #   req(credentials()$user_auth)
+  #   actionButton("button1", label = "Click for import data")
+  # })
+  # 
+  # observeEvent(input$button1,{
+  #   drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)
+  #   dat<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
+  # })
+  # 
+  # output$`Import protocol` <- renderUI({
+  #   req(credentials()$user_auth)
+  #   h3("Import protocol")
+  # })
+  # 
+  # output$import_protocol <- renderUI({
+  #   req(credentials()$user_auth)
+  #   actionButton("button2", label = "Click for import protocol")
+  # })
+  # 
+  # observeEvent(input$button2,{
+  #   drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)
+  # })
+  # 
+  # output$`Import district` <- renderUI({
+  #   req(credentials()$user_auth)
+  #   h3("Import district")
+  # })
+  # 
+  # output$import_district <- renderUI({
+  #   req(credentials()$user_auth)
+  #   actionButton("button3", label = "Click for import district")
+  # })
+  # 
+  # observeEvent(input$button3,{
+  #   drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)
+  # })
   ##############
   
   
@@ -300,9 +301,9 @@ server <- function(input, output, session) {
   observe({
     rank2 <- input$rank2
     if (rank2 == "species") {
-      data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
+      dat$species <- as.factor(paste(dat$ESPECE.OBSERVEE,dat$species,sep =" - "))
     }
-    updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(data[,rank2])),selected ="whole taxa")
+    updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(dat[,rank2])),selected ="whole taxa")
   })
   
   
@@ -319,11 +320,11 @@ server <- function(input, output, session) {
     if ("whole taxa"%in%taxa2 & length(taxa2) > 1) {
       if(taxa2[1] == "whole taxa"){
         observe({
-          updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(data[,rank2])),selected = taxa2[2])
+          updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(dat[,rank2])),selected = taxa2[2])
         })
       } else {
         observe({
-          updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(data[,rank2])),selected = taxa2[length(taxa2)])
+          updateSelectInput(session,"taxa2",label = paste('Select ',rank2),choices = c("whole taxa",levels(dat[,rank2])),selected = taxa2[length(taxa2)])
         })
       }
     }
@@ -331,16 +332,16 @@ server <- function(input, output, session) {
     
     rank2 <- input$rank2
     if (rank2 == "species") {
-      data$species <- as.factor(paste(data$ESPECE.OBSERVEE,data$species,sep =" - "))
+      dat$species <- as.factor(paste(dat$ESPECE.OBSERVEE,dat$species,sep =" - "))
     }
-    data_cut_taxa2 <- data
+    data_cut_taxa2 <- dat
     if ("whole taxa"%in%taxa2){
-      data_cut_taxa2 <- data
+      data_cut_taxa2 <- dat
     } else {
-      data_cut_taxa2 <- data[which(data[,rank2] == taxa2[1]),]
+      data_cut_taxa2 <- dat[which(dat[,rank2] == taxa2[1]),]
       if (length(taxa2)>1){
         for (i in 2:length(taxa2)){
-          data_cut_taxa2 <- rbind(data_cut_taxa2,data[which(data[,rank2] == taxa2[i]),])
+          data_cut_taxa2 <- rbind(data_cut_taxa2,dat[which(dat[,rank2] == taxa2[i]),])
         }
       }
       data_cut_taxa2$ESPECE.OBSERVEE <- factor(data_cut_taxa2$ESPECE.OBSERVEE,exclude=NULL)
@@ -353,7 +354,7 @@ server <- function(input, output, session) {
     marche2 <- input$market2
     if ("whole markets"%in%marche2 & length(marche2) > 1) {
       observe({
-        updateSelectInput(session,"market2",label= "Choice market (single or multiple)",choices = c("whole markets", levels(data$LIEU)),selected = marche2[2])
+        updateSelectInput(session,"market2",label= "Choice market (single or multiple)",choices = c("whole markets", levels(dat$LIEU)),selected = marche2[2])
       })
     }
     data_cut2_market <- data_cut_taxa2
@@ -406,7 +407,7 @@ server <- function(input, output, session) {
     }
     names(df) <- c("District","Statut","Freq")
     
-    #####Création du DataFrame####
+    #####CrC)ation du DataFrame####
     df$DISTRICT <- NA
     df$lng <- NA
     df$lat <- NA
@@ -424,12 +425,12 @@ server <- function(input, output, session) {
       pal <- c("#1AC227","#D2FF05","#FBD610","#FB8010","#FF0C00","#666968")
     } else {
       #df$Statut <- factor(df$Statut, levels = c(""))
-      pal <- c("#1AC227","#FFAE05","#FF0C00","#666968")
+      pal <- c("#666968","#1AC227","#FFAE05","#FF0C00")
     }
     #####################
     
     df <- arrange(df,Statut)
-    ####Création des données pour chaque district#####
+    ####CrC)ation des donnC)es pour chaque district#####
     df$District <- as.factor(df$District)
     name_df <- c()
     for (i in levels(df$District)){
@@ -471,3 +472,4 @@ server <- function(input, output, session) {
       prot_geo
   })
 }
+

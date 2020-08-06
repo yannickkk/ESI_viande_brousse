@@ -1,72 +1,40 @@
-##################################
-######Traitement des données######
-##################################
-#####Useful library#####
+##################################################################
+######Variables globales de l'application (lu une seule fois)######
+##################################################################
+#####chargement des libraries#####
 
-#library("red")
-#library("RJSONIO")
-#library("ritis")
-#library("lubridate")
-library("plotly")
-library("reshape")
-library("dplyr")
-library("tidyverse")
-library("tidyr")
+library(plotly)
+library(reshape)
+library(dplyr)
+library(tidyverse)
+library(tidyr)
 library(shiny)
 library(markdown)
 library(shinyjs)
 library(shinyauthr)
-library(googledrive)
 library(leaflet)
 library(leaflet.minicharts)
 library(geojsonio)
 library(units)
 library(maptools)
-#library(mapview)
 library(leafsync)
 library(sodium)
-
-user_base <- readRDS("user_base.rds")
-
-
-####################permet de spécifier l'accès au drive #########
-options(
-  gargle_oob_default = TRUE
-)
-
-drive_auth <- function(
-    email = "esicongo763@gmail.com",
-    path = "token.JSON",
-    scopes = "https://www.googleapis.com/auth/drive",
-    cache = gargle::gargle_oauth_cache(),
-    use_oob = gargle::gargle_oob_default(),
-    token = NULL
-  )
-
-######################
-
-######Initialisation######
-###################Si les fichiers protocoles et data_final n existent pas sous la racine de l'app ils sont telecharges depuis le drive
-##############ATTENTION le fichier global.R ne va être lu qu'au lancement de l'appli
-# if (!exists("protocole.html")) {drive_download(as_id(drive_find(pattern = "protocole.html")$id), overwrite = TRUE)}
-# if (!exists("data_final.csv")) {drive_download(as_id(drive_find(pattern = "data_final.csv")$id), overwrite = TRUE)}
-# if (!exists("district.csv")) {drive_download(as_id(drive_find(pattern = "district.csv")$id), overwrite = TRUE)}
-data<-read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
-data$QUANTITE <- replace(data$QUANTITE,is.na(data$QUANTITE),1)
-##Transformation de NA en 1 pour compenser le manque d'informations
+library(rdrop2)
+library(data.table)
 
 
-distircts_geo<- geojsonio::geojson_read("districts_v2.geojson", what = "sp")
-protected_geo<-geojsonio::geojson_read("protected_area.geojson", what = "sp")
-cent_dist_geo<-geojsonio::geojson_read("districts_centroids_v2.geojson", what = "sp")
-#setwd("C:/Users/Utilisateur/Desktop/Stage/Outputs")
-#data<- read.csv2("data_final.csv", header = TRUE, encoding = "ANVI")
-district <- read.csv2("district.csv",header=TRUE, encoding ="ANVI")
-data_p <- data
+########lien vers les scripts de telechargement des donnees et d'autorisation d'acces
+source("scripts/user_base.R")
+source("scripts/access_drive.R")
 
-################################################
+dat<-as.data.frame(apply(dat,2,as.factor)) ###typage des colonnes en facteur et retour au dataframe
+########si des quantites manquent on les remplace par 1 car lespece est presente
+dat$QUANTITE <- replace(dat$QUANTITE,is.na(dat$QUANTITE),1)
 
-######Création de l'axe x marge des graphiques######
+#####################################################################################################################COMMENTER POURQUOI ON FAIT CELA
+data_p <- dat
+
+######CrC)ation de l'axe x marge des graphiques######
 m <- list(
   l = 50,
   r = 50,
